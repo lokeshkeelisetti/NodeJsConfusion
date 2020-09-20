@@ -8,9 +8,22 @@ var router = express.Router();
 router.use(bodyParser.json());
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
-});
+router.get('/',authenticate.verifyUser, (req, res, next) => {
+    if (authenticate.verifyAdmin(req.user)){
+      User.find({})
+      .then((users)=>{
+        res.statusCode = 200;
+        res.setHeader('Content-Type','application/json');
+        res.json(users);
+      },(err)=> next(err))
+      .catch((err)=>next(err));
+    }
+    else{
+      var err =new Error('You are not authorized for this operation');
+      next(err);
+    }
+      
+  });
 
 
 router.post('/signup',(req, res, next) => {
